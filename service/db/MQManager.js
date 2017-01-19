@@ -14,18 +14,24 @@ class MQManager extends BaseManager {
 
     const context = rabbit.createContext(config.mqHost);
 
-    this.pub = context.socket('PUB');
-    this.sub = context.socket('SUB');
-    this.sub.pipe(process.stdout);
+    context.on('ready', () => {
+      this.pub = context.socket('PUB');
+      this.sub = context.socket('SUB');
+      this.sub.pipe(process.stdout);
 
-    this.donePromise = new Promise((resolve, reject) => {
-      this.sub.connect('events', (err) => {
-        console.log(err);
-        this.pub.connect('events', (err) => {
+      this.donePromise = new Promise((resolve, reject) => {
+        this.sub.connect('events', (err) => {
           console.log(err);
-          resolve();
+          this.pub.connect('events', (err) => {
+            console.log(err);
+            resolve();
+          });
         });
       });
+    });
+
+    context.on('error', (err) => {
+      log.error(err);
     });
   }
 
