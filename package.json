@@ -13,7 +13,10 @@
   "scripts": {},
   "dependencies": {
     "bencode": "^0.7.0",
-    "bitfield": "^1.1.2"
+    "bitfield": "^1.1.2",
+    "log4js": "^1.1.0",
+    "rabbit.js": "^0.4.4",
+    "request": "^2.79.0"
   },
   "keywords": [
     "torrent",
