@@ -9,23 +9,26 @@ var config = require('../../config');
 var log = require('../log');
 
 class HttpManager extends BaseManager {
-
+  
   constructor() {
     super();
-
+    
     this.queue = [];
+    
+    this.api = config.httpHost;
   }
-
+  
   send(data) {
     this.queue.push(data);
-
+    
     if (queue.length >= 10) {
-      request.post(config.httpHost, JSON.stringify(this.queue));
-
+      log.info('send peers by http post.');
+      const postData = Object.assign({}, this.queue);
       this.queue = [];
+      return request.post(this.api, JSON.stringify(postData));
     }
-  }
 
+  }
 }
 
-module.exports =  HttpManager;
+module.exports = HttpManager;

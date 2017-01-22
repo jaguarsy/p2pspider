@@ -15,17 +15,11 @@ class MQManager extends BaseManager {
     const context = rabbit.createContext(config.mqHost);
 
     context.on('ready', () => {
-      this.pub = context.socket('PUB');
-      this.sub = context.socket('SUB');
-      this.sub.pipe(process.stdout);
+      this.pub = context.socket('PUB', { routing: 'direct' });
 
       this.donePromise = new Promise((resolve, reject) => {
-        this.sub.connect('events', (err) => {
-          console.log(err);
-          this.pub.connect('events', (err) => {
-            console.log(err);
-            resolve();
-          });
+        this.pub.connect('events.peers', () => {
+          resolve();
         });
       });
     });
@@ -36,8 +30,9 @@ class MQManager extends BaseManager {
   }
 
   send(data) {
-    this.donePromise.then(() => {
-      this.pub.publish('data', JSON.stringify(data));
+    return this.donePromise.then(() => {
+      log.info('send peers by amqp.');
+      this.pub.publish('peers.add', JSON.stringify(data));
     });
   }
 }
