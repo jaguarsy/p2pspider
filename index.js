@@ -37,7 +37,11 @@ p2p.on('metadata', (metadata) => {
     });
   }
 
-  db.send(data);
+  db.send(data).then(res => {
+    log.info(res);
+  }).catch(err => {
+    log.error(err);
+  });
 });
 
 process.on('SIGINT', () => {

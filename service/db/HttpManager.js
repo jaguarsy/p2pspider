@@ -41,6 +41,7 @@ class HttpManager extends BaseManager {
         request.post({
           url: this.api + 'addPeer',
           json: {
+            count: postData.length,
             peers: postData,
           },
         }, (err, res, body) => {
