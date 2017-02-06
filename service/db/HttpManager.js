@@ -40,7 +40,9 @@ class HttpManager extends BaseManager {
         this.queue = [];
         request.post({
           url: this.api + 'addPeer',
-          json: postData,
+          json: {
+            peers: postData,
+          },
         }, (err, res, body) => {
           if (err) {
             reject(err);
