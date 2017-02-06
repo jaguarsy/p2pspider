@@ -33,7 +33,7 @@ class HttpManager extends BaseManager {
 
       log.info(data.infoHash + ':' + data.name);
 
-      if (queue.length >= 10) {
+      if (this.queue.length >= 10) {
         log.info('Send peers by http post.');
 
         const postData = Object.assign({}, this.queue);
