@@ -38,7 +38,9 @@ p2p.on('metadata', (metadata) => {
   }
 
   db.send(data).then(res => {
-    log.info(res);
+    if(res) {
+      log.info(res);
+    }
   }).catch(err => {
     log.error(err);
   });

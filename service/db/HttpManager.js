@@ -33,18 +33,15 @@ class HttpManager extends BaseManager {
 
       log.info(data.infoHash + ':' + data.name);
 
-      if (this.queue.length >= 10) {
+      if (this.queue.length >= config.peerSendCache) {
         log.info('Send peers by http post.');
 
-        const postData = Object.assign({}, this.queue);
-        this.queue = [];
         request.post({
           url: this.api + 'addPeer',
-          json: {
-            count: postData.length,
-            peers: postData,
-          },
+          json: this.queue,
         }, (err, res, body) => {
+          this.queue = [];
+
           if (err) {
             reject(err);
           } else {
@@ -52,7 +49,7 @@ class HttpManager extends BaseManager {
           }
         });
       } else {
-        resolve('Peer enqueue.');
+        resolve();
       }
     });
   }
