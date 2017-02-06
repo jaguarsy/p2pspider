@@ -3,40 +3,49 @@
  */
 'use strict';
 
-var db = require('./service/db');
-var log = require('./service/log');
-var P2PSpider = require('./lib');
+const db = require('./service/db');
+const log = require('./service/log');
+const P2PSpider = require('./lib');
 
 const p2p = P2PSpider({
-  nodesMaxSize: 200,
-  maxConnections: 400,
+  nodesMaxSize: 100,
+  maxConnections: 100,
   timeout: 5000
 });
 
-const hashCache = {};
-
 p2p.ignore((infohash, rinfo, callback) => {
-  if (hashCache[infohash]) {
-    callback(true);
-  } else {
-    hashCache[infohash] = true;
-  }
+  db.exists(infohash).then(callback);
 });
 
-p2p.on('metadata', function (metadata) {
-  var data = {};
-  data.hash = metadata.infohash;
-  data.magnet = metadata.magnet;
+p2p.on('metadata', (metadata) => {
+  const data = {};
+
+  if (!metadata) {
+    return;
+  }
+
+  data.infoHash = metadata.infohash;
   data.name = metadata.info.name ? metadata.info.name.toString() : '';
   data.fetchedAt = new Date().getTime();
 
-  log.info('announce_peers: ' + JSON.stringify(data));
+  if (metadata.info.files) {
+    data.files = metadata.info.files.map(file => {
+      return {
+        length: file.length,
+        path: file.path && file.path.join('/')
+      };
+    });
+  }
+
   db.send(data);
 });
 
-process.on('SIGINT', function () {
-  log.warn('Spider closed.');
-  process.exit();
+process.on('SIGINT', () => {
+  db.close().catch(err => {
+    log.error(err);
+  }).then(() => {
+    process.exit();
+  });
 });
 
 p2p.listen(6881, '0.0.0.0');
