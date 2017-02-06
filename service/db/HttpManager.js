@@ -24,7 +24,12 @@ class HttpManager extends BaseManager {
   send(data) {
     return new Promise((resolve, reject) => {
       this.queue.push(data);
-      lvlDB.put(data.info);
+
+      lvlDB.put(data.infoHash, '1', (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
 
       log.info(data.infoHash + ':' + data.name);
 
